@@ -8,7 +8,7 @@
 
 import logging
 import json
-from typing import List
+from typing import List, Tuple
 
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, DistributedSampler
 import torch
@@ -358,7 +358,7 @@ class Trainer(TrainerBase):
 
         return eval_loss, results
 
-    def predict(self)->List:
+    def predict(self)->Tuple[List, List]:
         if self.args.model_type == "albert":
             self.model.albert.set_regression_threshold(self.args.regression_threshold)
             self.model.albert.set_patience(self.args.patience)
@@ -407,4 +407,4 @@ class Trainer(TrainerBase):
         # logits 取 argmax， 得到预测的标签序号
         slot_preds = np.argmax(slot_preds, axis=2)  # (n, L, NUM_OF_LABELS) --> (n, L)
 
-        return slot_preds
+        return slot_preds, out_token_ids

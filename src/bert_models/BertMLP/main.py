@@ -6,6 +6,9 @@
 # @File    : main.py
 import yaml, json
 import os,sys
+
+from liyi_cute.processor.data_output import DataOutput
+
 sys.path.append("./")
 import logging
 from datetime import datetime
@@ -14,10 +17,10 @@ import torch
 
 
 from src.bert_models.BertMLP.trainer import Trainer
-from src.bert_models.BertMLP.data_loader import load_and_cache_examples, ResultExample
+from src.bert_models.BertMLP.data_loader import load_and_cache_examples
 from src.bert_models.BertMLP.finetuning_argparse import get_argparse
 from src.bert_models.BertMLP import MODEL_CLASSES
-from src.bert_models.BertMLP.utils import override_defaults, seed_everything, get_labels, init_logger
+from src.bert_models.BertMLP.utils import override_defaults, seed_everything, get_labels
 
 logger = logging.getLogger(__file__)
 
@@ -165,26 +168,31 @@ def main():
                                dev_dataset=None,
                                test_dataset=test_dataset)
 
-        slot_preds = trainer.predict() #["O","O]
+        slot_preds, out_token_ids = trainer.predict() #["O","O]
         print(1)
         slot_label_map = {i: label for i, label in enumerate(args.labels_list)}
         print("slot_label_map: ", slot_label_map)
 
         slot_preds_list = [[] for _ in range(slot_preds.shape[0])]
 
+        ## 没有分成字串
+        for i in range(slot_preds.shape[0]):  # 这个时候需要区分一个问题：经过bert之后的标签有很大一部分是我们不需要的东西
+            for j in range(slot_preds.shape[1]):
+                token_id_ = out_token_ids[i][j]
+                token_ = tokenizer.convert_ids_to_tokens([token_id_])[0]
+
+                if token_ not in ["[CLS]", "[SEP]", "[PAD]"]:
+                    slot_preds_list[i].append(slot_label_map[slot_preds[i][j]])
+
         if args.data_type == "conll":
             if args.token_subword:
                 pass
             else:
-                ## 没有分成字串
-                for i in range(slot_preds.shape[0]):  # 这个时候需要区分一个问题：经过bert之后的标签有很大一部分是我们不需要的东西
-                    for j in range(slot_preds.shape[1]):
-                        token_ = tokenizer.convert_ids_to_tokens([token_id_])[0]
-
-                        if token_ not in ["[CLS]", "[SEP]", "[PAD]"]:
-                            slot_preds_list[i].append(slot_label_map[slot_preds[i][j]])
+                pass
         elif args.data_type == "json":
-            pass
+            out_func = DataOutput()
+            output = out_func(task_name=args.task_name, examples=test_examples, pred=slot_preds_list)
+            print(output)
         elif args.data_type == "ann":
             pass
         else:

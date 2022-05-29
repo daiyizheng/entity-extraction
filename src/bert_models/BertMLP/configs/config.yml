@@ -8,7 +8,8 @@ data_arguments:
   ignore_index: -100
   sub_token_label_scheme: v1
   overwrite_cache: false
-  is_cut_text: true
+  is_cut: true
+  is_fine_cut: false
   is_chinese: false
   token_subword: true
 
