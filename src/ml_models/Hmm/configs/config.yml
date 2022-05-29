@@ -1,0 +1,16 @@
+data_arguments:
+  seed: 1314
+  data_dir: "../../../datasets/conll"
+  data_type: conll
+  labels: "../../../datasets/conll/bio_labels.txt"
+  vocab_dir: "../../../datasets/conll/vocab.txt"
+  overwrite_cache: false
+
+train_argunents:
+  task_name: conll
+  model_type: hmm
+
+output_arguments:
+  output_dir: "../../../experiments/outputs"
+  log_dir: "../../../experiments/logs"
+  overwrite_output_dir: true

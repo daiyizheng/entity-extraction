@@ -1,0 +1,39 @@
+data_arguments:
+  seed: 1314
+  data_dir: "../../../datasets/conll"
+  data_type: json
+  labels: "../../../datasets/conll/mrc_labels.json"
+  ignore_index: -100
+  pad_token_label_id: -100
+  sub_token_label_scheme: v1
+  overwrite_cache: false
+  is_cut_text: false
+  is_flat_ner: true
+  file_to_predict: false
+
+train_argunents:
+  task_name: conll
+  model_type: bertmrc
+  model_name_or_path: "bert-base-uncased"
+  learning_rate: 0.00002
+  entity_threshold: 0.5
+  classifiers_learning_rate: 0.0001
+  num_train_epochs: 20
+  warmup_steps: 32
+  weight_start: 1.0
+  weight_end: 1.0
+  evaluate_during_training: true
+  per_gpu_train_batch_size: 64
+  per_gpu_eval_batch_size: 64
+  max_seq_length: 128
+  do_lower_case: true
+  eval_all_checkpoints: true
+  gradient_checkpointing: true
+
+output_arguments:
+  output_dir: "../../../experiments/outputs"
+  logging_steps: 50
+  save_steps: 50
+  log_dir: "../../../experiments/logs"
+  tensorboardx_path: "../../../experiments/runs"
+  overwrite_output_dir: true
